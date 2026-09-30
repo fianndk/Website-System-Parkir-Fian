@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Parking — Struk Termal</title>
+<style>
+  :root{
+    /* ==== PALET BIRU-KUNING ==== */
+    --blue-1:#89C7E7;
+    --blue-2:#ADD8E5;
+    --blue-3:#C4EBF1;
+    --blue-deep:#3d7ea6;
+    --yellow-1:#FFFFC2;
+    --yellow-2:#FFF684;
+    --yellow-3:#FFD301;
+    --ink:#1f3a4a;
+    --ink-soft:#5a7a8c;
+    --paper:#fffefb;      /* warna kertas termal */
+    --paper-line:#e8eef2;
+    --thermal-ink:#2b2b2b;
+    --shadow:0 14px 34px rgba(61,126,166,.18);
+    --shadow-soft:0 8px 20px rgba(61,126,166,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%,rgba(255,246,132,.55) 0%,transparent 42%),
+      radial-gradient(circle at 88% 92%,rgba(137,199,231,.55) 0%,transparent 45%),
+      linear-gradient(150deg,#C4EBF1 0%,#ADD8E5 45%,#89C7E7 100%);
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px 16px 48px;
+    line-height:1.55;
+    background-attachment:fixed;
+  }
+  .container{max-width:940px;margin:0 auto}
+
+  /* ================= HERO ================= */
+  .hero{
+    background:linear-gradient(120deg,#89C7E7 0%,#ADD8E5 45%,#FFFFC2 100%);
+    border-radius:28px;
+    padding:32px 30px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:24px;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;right:-40px;top:-40px;width:220px;height:220px;
+    background:radial-gradient(circle,#FFF684 0%,transparent 70%);
+    border-radius:50%;opacity:.7;
+  }
+  .hero .icon{
+    position:absolute;right:26px;bottom:18px;
+    font-size:5.4rem;opacity:.25;z-index:0;
+  }
+  .hero h1{
+    font-size:clamp(1.5rem,3.6vw,2.15rem);
+    position:relative;z-index:1;color:var(--ink);
+    font-weight:800;letter-spacing:.3px;
+  }
+  .hero h1 span{
+    background:linear-gradient(120deg,#FFD301,#FFF684);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    padding:0 4px;
+  }
+  .hero p{position:relative;z-index:1;color:var(--ink-soft);margin-top:6px;font-size:.95rem}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+  .badge{
+    background:rgba(255,255,255,.7);
+    border:1px solid rgba(61,126,166,.22);
+    padding:6px 14px;border-radius:999px;font-size:.76rem;font-weight:700;
+    color:var(--ink);backdrop-filter:blur(6px);
+  }
+
+  /* ================= CARD ================= */
+  .card{
+    background:rgba(255,255,255,.82);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.9);
+    border-radius:22px;
+    padding:26px;
+    box-shadow:var(--shadow-soft);
+    margin-bottom:22px;
+    animation:fade .5s ease;
+  }
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .card h2{
+    font-size:1.05rem;margin-bottom:16px;display:flex;align-items:center;gap:10px;
+    color:var(--blue-deep);letter-spacing:.3px;font-weight:800;
+  }
+  .card h2 .num{
+    background:linear-gradient(135deg,var(--blue-1),var(--blue-deep));
+    color:#fff;width:30px;height:30px;display:grid;place-items:center;
+    border-radius:12px;font-weight:900;font-size:.9rem;
+    box-shadow:0 4px 12px rgba(61,126,166,.35);
+    transform:rotate(-4deg);
+  }
+
+  /* ================= TARIF ================= */
+  .tarif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:640px){.tarif-grid{grid-template-columns:1fr}}
+  .tarif-item{
+    background:linear-gradient(160deg,#ffffff,#C4EBF1);
+    border:1px solid rgba(61,126,166,.15);
+    border-radius:18px;padding:18px 14px;text-align:center;
+    position:relative;overflow:hidden;
+    transition:transform .25s,box-shadow .25s;
+  }
+  .tarif-item:nth-child(2){background:linear-gradient(160deg,#ffffff,#ADD8E5)}
+  .tarif-item:nth-child(3){background:linear-gradient(160deg,#FFFFC2,#FFF684)}
+  .tarif-item:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+  .tarif-item .emoji{font-size:1.8rem}
+  .tarif-item .val{font-size:1.2rem;font-weight:900;color:var(--blue-deep);margin-top:4px}
+  .tarif-item:nth-child(3) .val{color:#8a6a00}
+  .tarif-item .lbl{font-size:.74rem;color:var(--ink-soft);margin-top:2px;font-weight:700;letter-spacing:.3px}
+
+  /* ================= FORM ================= */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  label{
+    display:block;font-size:.78rem;color:var(--blue-deep);
+    margin-bottom:7px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+  }
+  .input-wrap{position:relative}
+  .input-wrap .unit{
+    position:absolute;right:16px;top:50%;transform:translateY(-50%);
+    color:var(--ink-soft);font-size:.82rem;font-weight:800;pointer-events:none;
+  }
+  input[type="number"]{
+    width:100%;padding:14px 50px 14px 16px;border-radius:14px;
+    border:2px solid rgba(137,199,231,.5);
+    background:#ffffff;color:var(--ink);font-size:1.05rem;font-weight:700;
+    outline:none;transition:border .2s,box-shadow .2s;
+  }
+  input[type="number"]:focus{
+    border-color:var(--blue-deep);
+    box-shadow:0 0 0 4px rgba(255,246,132,.55);
+  }
+
+  /* ================= TOMBOL + ANIMASI ================= */
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    padding:14px 26px;border-radius:14px;border:none;cursor:pointer;
+    font-weight:800;font-size:.95rem;letter-spacing:.3px;
+    transition:transform .15s,box-shadow .2s,filter .2s;
+    font-family:inherit;position:relative;overflow:hidden;
+  }
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.04)}
+  .btn:active{transform:translateY(0) scale(.97)}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--yellow-3),var(--yellow-2));
+    color:#5a4400;
+    box-shadow:0 8px 22px rgba(255,211,1,.55);
+  }
+  .btn-primary:hover{box-shadow:0 12px 28px rgba(255,211,1,.75)}
+  /* ripple effect pada tombol */
+  .btn .ripple{
+    position:absolute;border-radius:50%;
+    background:rgba(255,255,255,.75);
+    transform:scale(0);animation:rippleAnim .6s linear;
+    pointer-events:none;
+  }
+  @keyframes rippleAnim{
+    to{transform:scale(4);opacity:0}
+  }
+  .btn-ghost{
+    background:rgba(255,255,255,.7);
+    border:2px solid var(--blue-1);
+    color:var(--blue-deep);
+  }
+  .btn-ghost:hover{background:#ffffff}
+  .btn-danger{
+    background:linear-gradient(135deg,var(--blue-1),var(--blue-deep));
+    color:#ffffff;
+    box-shadow:0 8px 22px rgba(61,126,166,.4);
+  }
+
+  /* ================= PRINTER ================= */
+  .printer-wrap{
+    margin-top:28px;
+    display:none;
+    justify-content:center;
+    animation:fade .4s ease;
+  }
+  .printer-wrap.show{display:flex;flex-direction:column;align-items:center}
+
+  /* bagian mesin printer */
+  .printer-top{
+    width:340px;max-width:100%;
+    height:34px;
+    background:linear-gradient(180deg,#3d7ea6,#2a5c7e);
+    border-radius:14px 14px 4px 4px;
+    position:relative;
+    box-shadow:0 8px 18px rgba(61,126,166,.35);
+  }
+  .printer-top::before{
+    content:"";
+    position:absolute;left:20px;top:10px;width:8px;height:8px;
+    background:#FFF684;border-radius:50%;
+    box-shadow:0 0 8px #FFD301;
+    animation:blink 1s infinite;
+  }
+  @keyframes blink{50%{opacity:.35}}
+  .printer-top::after{
+    content:"SMART PARKING — MESIN STRUK";
+    position:absolute;right:20px;top:9px;
+    font-size:.62rem;letter-spacing:1.5px;
+    color:#C4EBF1;font-weight:700;
+  }
+  .printer-slot{
+    width:320px;max-width:100%;
+    height:8px;
+    background:#1d3f56;
+    border-radius:0 0 6px 6px;
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.5);
+    position:relative;z-index:3;
+  }
+
+  /* kertas keluar dari slot */
+  .tiket-wrap{
+    margin-top:-2px;
+    display:flex;justify-content:center;
+    width:100%;
+    overflow:hidden; /* supaya kertas terlihat keluar dari slot */
+  }
+
+  /* ================================================
+     STRUK TERMAL (kertas photo box)
+     ================================================ */
+  .struk{
+    width:320px;max-width:100%;
+    background:
+      /* efek garis-garis serat kertas */
+      repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,.012) 0 1px,
+        transparent 1px 3px
+      ),
+      var(--paper);
+    color:var(--thermal-ink);
+    font-family:'Courier New','Consolas',monospace;
+    font-size:.78rem;
+    line-height:1.5;
+    padding:22px 20px 26px;
+    box-shadow:
+      0 4px 10px rgba(0,0,0,.06),
+      0 14px 30px rgba(61,126,166,.18);
+    position:relative;
+    /* efek sobekan atas & bawah */
+    -webkit-mask:
+      radial-gradient(circle at 4px 0, transparent 3px, #000 3.5px) 0 0/8px 8px repeat-x,
+      radial-gradient(circle at 4px 100%, transparent 3px, #000 3.5px) 0 100%/8px 8px repeat-x,
+      linear-gradient(#000,#000) 0 0/100% 100% no-repeat;
+    mask:
+      radial-gradient(circle at 4px 0, transparent 3px, #000 3.5px) 0 0/8px 8px repeat-x,
+      radial-gradient(circle at 4px 100%, transparent 3px, #000 3.5px) 0 100%/8px 8px repeat-x,
+      linear-gradient(#000,#000) 0 0/100% 100% no-repeat;
+    /* animasi kertas keluar */
+    transform-origin:top center;
+    animation:cetakStruk 1.6s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+
+  /* animasi kertas keluar dari printer */
+  @keyframes cetakStruk{
+    0%   { transform:translateY(-100%) scaleY(.1); opacity:0;}
+    35%  { transform:translateY(0%)    scaleY(1);  opacity:1;}
+    100% { transform:translateY(0%)    scaleY(1);  opacity:1;}
+  }
+
+  /* bagian header struk */
+  .struk-head{
+    text-align:center;
+    padding-bottom:10px;
+    border-bottom:1px dashed #555;
+  }
+  .struk-head .logo{
+    display:inline-block;
+    font-size:1.3rem;
+    margin-bottom:2px;
+  }
+  .struk-head .nama{
+    font-weight:900;font-size:.9rem;letter-spacing:2px;
+    color:#000;
+  }
+  .struk-head .sub{
+    font-size:.62rem;letter-spacing:1.5px;color:#555;
+  }
+  .struk-head .alamat{
+    font-size:.62rem;color:#777;margin-top:2px;
+  }
+
+  .struk-info{
+    padding:10px 0;
+    border-bottom:1px dashed #555;
+    font-size:.72rem;
+  }
+  .struk-info .baris{
+    display:flex;justify-content:space-between;
+    padding:1px 0;
+  }
+
+  .struk-items{
+    padding:8px 0;
+    border-bottom:1px dashed #555;
+  }
+  .struk-items .item{
+    display:flex;justify-content:space-between;
+    padding:2px 0;
+    font-size:.74rem;
+  }
+  .struk-items .item .qty{
+    color:#666;
+    font-size:.68rem;
+  }
+
+  .struk-total{
+    padding:10px 0 4px;
+    border-bottom:1px dashed #555;
+  }
+  .struk-total .baris{
+    display:flex;justify-content:space-between;
+    font-size:.76rem;padding:2px 0;
+  }
+  .struk-total .baris.besar{
+    font-size:.95rem;font-weight:900;
+    border-top:1px solid #000;
+    margin-top:6px;padding-top:6px;
+  }
+
+  .struk-foot{
+    text-align:center;
+    padding-top:12px;
+    font-size:.62rem;
+    color:#555;
+    line-height:1.6;
+  }
+  .struk-foot .terimakasih{
+    font-size:.78rem;font-weight:900;color:#000;
+    letter-spacing:2px;
+    margin-bottom:4px;
+  }
+  .struk-foot .barcode{
+    margin:10px auto 4px;
+    height:34px;width:180px;
+    background:repeating-linear-gradient(90deg,
+      #000 0 2px, transparent 2px 4px,
+      #000 4px 5px, transparent 5px 9px,
+      #000 9px 12px, transparent 12px 14px,
+      #000 14px 15px, transparent 15px 18px);
+  }
+  .struk-foot .kode{
+    font-size:.7rem;letter-spacing:3px;color:#000;font-weight:800;
+  }
+
+  /* ================= ERROR ================= */
+  .error{
+    margin-top:20px;padding:16px 20px;border-radius:14px;
+    background:#fff8d6;border:2px solid var(--yellow-3);
+    color:#7a5a00;font-weight:700;font-size:.9rem;
+    display:flex;align-items:center;gap:10px;
+    animation:shake .4s ease;
+  }
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+  /* ================= RIWAYAT ================= */
+  .riwayat-list{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+  .riwayat-item{
+    background:linear-gradient(135deg,#ffffff,#C4EBF1);
+    border-left:6px solid var(--blue-1);
+    border-radius:14px;padding:14px 18px;
+    display:flex;justify-content:space-between;align-items:center;
+    gap:14px;flex-wrap:wrap;
+    transition:transform .2s,box-shadow .2s,border-color .2s;
+    animation:slideIn .45s ease both;
+  }
+  @keyframes slideIn{
+    from{opacity:0;transform:translateX(-14px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+  .riwayat-item:nth-child(even){
+    background:linear-gradient(135deg,#ffffff,#FFFFC2);
+    border-left-color:var(--yellow-3);
+  }
+  .riwayat-item:hover{transform:translateX(4px);box-shadow:var(--shadow-soft)}
+  .riwayat-item .info{font-size:.85rem;color:var(--ink-soft)}
+  .riwayat-item .info b{color:var(--blue-deep);font-size:.95rem}
+  .riwayat-item .info .dur{
+    display:inline-block;background:rgba(137,199,231,.35);
+    color:var(--blue-deep);padding:2px 10px;border-radius:999px;
+    font-size:.72rem;font-weight:800;margin-left:6px;
+  }
+  .riwayat-item .info .diskon-tag{
+    display:inline-block;background:var(--yellow-2);
+    color:#7a5a00;padding:2px 10px;border-radius:999px;
+    font-size:.72rem;font-weight:800;margin-left:6px;
+  }
+  .riwayat-item .harga{
+    font-size:1.15rem;font-weight:900;color:var(--blue-deep);
+    text-align:right;min-width:120px;
+  }
+  .riwayat-item .harga small{
+    display:block;font-size:.68rem;color:var(--ink-soft);font-weight:600;
+  }
+  .empty{
+    color:var(--ink-soft);font-size:.88rem;padding:22px;text-align:center;
+    background:rgba(255,255,255,.6);border-radius:14px;
+    border:2px dashed var(--blue-1);
+  }
+
+  footer{
+    text-align:center;color:var(--ink-soft);
+    font-size:.78rem;margin-top:28px;letter-spacing:.3px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="icon">🅿️</span>
+    <h1>Smart <span>Parking</span></h1>
+    <p>Masukkan jam parkir, lalu dapatkan struk termal otomatis.</p>
+    <div class="badges">
+      <span class="badge">⏱️ 1 Jam Pertama · Rp 5.000</span>
+      <span class="badge">➕ Jam Berikutnya · Rp 3.000</span>
+      <span class="badge">🎁 Diskon Rp 2.000 jika &gt; 5 jam</span>
+    </div>
+  </header>
+
+  <!-- TARIF -->
+  <section class="card">
+    <h2><span class="num">💰</span> Daftar Tarif</h2>
+    <div class="tarif-grid">
+      <div class="tarif-item">
+        <div class="emoji">⏱️</div>
+        <div class="val">Rp 5.000</div>
+        <div class="lbl">1 Jam Pertama</div>
+      </div>
+      <div class="tarif-item">
+        <div class="emoji">➕</div>
+        <div class="val">Rp 3.000</div>
+        <div class="lbl">Per Jam Berikutnya</div>
+      </div>
+      <div class="tarif-item">
+        <div class="emoji">🎁</div>
+        <div class="val">− Rp 2.000</div>
+        <div class="lbl">Diskon &gt; 5 Jam</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INPUT -->
+  <section class="card">
+    <h2><span class="num">🧮</span> Waktu Parkir</h2>
+    <div class="grid2">
+      <div>
+        <label>🚗 Jam Masuk</label>
+        <div class="input-wrap">
+          <input type="number" id="jamMasuk" min="0" max="23" value="8" placeholder="0 - 23" aria-label="Jam masuk">
+          <span class="unit">:00</span>
+        </div>
+      </div>
+      <div>
+        <label>🏁 Jam Keluar</label>
+        <div class="input-wrap">
+          <input type="number" id="jamKeluar" min="0" max="23" value="15" placeholder="0 - 23" aria-label="Jam keluar">
+          <span class="unit">:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" onclick="cetakStruk(event)">
+        🎫 Cetak Struk Parkir
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="resetForm()">
+        🔄 Reset
+      </button>
+      <button type="button" class="btn btn-danger" onclick="hapusRiwayat()">
+        🗑️ Hapus Riwayat
+      </button>
+    </div>
+
+    <!-- Tempat printer + struk -->
+    <div id="printerArea" class="printer-wrap"></div>
+    <div id="errorArea"></div>
+  </section>
+
+  <!-- RIWAYAT -->
+  <section class="card">
+    <h2><span class="num">📋</span> Riwayat Parkir</h2>
+    <div id="riwayatWrap">
+      <div class="empty">Belum ada transaksi. Cetak struk dulu ya 🚗</div>
+    </div>
+  </section>
+
+  <footer>LKPD Informatika Kelas XII · Smart Parking · Struk Termal Photo Box</footer>
+</div>
+
+<script>
+/* ================== KONSTANTA TARIF ================== */
+const TARIF_JAM_PERTAMA = 5000;
+const TARIF_JAM_BERIKUTNYA = 3000;
+const BATAS_DISKON = 5;
+const NILAI_DISKON = 2000;
+
+let riwayat = [];
+let noStruk = 0;
+
+function rupiah(angka){
+  return 'Rp ' + angka.toLocaleString('id-ID');
+}
+
+/* ================== RIPPLE EFFECT ================== */
+function buatRipple(e){
+  const btn = e.currentTarget;
+  const circle = document.createElement('span');
+  circle.classList.add('ripple');
+  const d = Math.max(btn.clientWidth, btn.clientHeight);
+  const rect = btn.getBoundingClientRect();
+  circle.style.width = circle.style.height = d + 'px';
+  circle.style.left = (e.clientX - rect.left - d/2) + 'px';
+  circle.style.top  = (e.clientY - rect.top  - d/2) + 'px';
+  btn.appendChild(circle);
+  setTimeout(()=>circle.remove(),600);
+}
+
+/* ================== VALIDASI ================== */
+function ambilInput(){
+  const masuk  = document.getElementById('jamMasuk').value.trim();
+  const keluar = document.getElementById('jamKeluar').value.trim();
+
+  if(masuk === '' || keluar === ''){
+    return {error:'Jam masuk dan jam keluar wajib diisi ya 🙏'};
+  }
+  const jm = Number(masuk);
+  const jk = Number(keluar);
+
+  if(!Number.isInteger(jm) || !Number.isInteger(jk)){
+    return {error:'Jam harus berupa angka bulat.'};
+  }
+  if(jm < 0 || jm > 23 || jk < 0 || jk > 23){
+    return {error:'Jam harus di antara 0 sampai 23.'};
+  }
+  if(jk <= jm){
+    return {error:'Jam keluar harus lebih besar dari jam masuk.'};
+  }
+  return {jamMasuk: jm, jamKeluar: jk, durasi: jk - jm};
+}
+
+/* ================== CETAK STRUK ================== */
+function cetakStruk(e){
+  if(e) buatRipple(e);
+
+  const printer = document.getElementById('printerArea');
+  const errorBox = document.getElementById('errorArea');
+
+  // reset area
+  errorBox.innerHTML = '';
+  printer.innerHTML = '';
+  printer.classList.remove('show');
+
+  const input = ambilInput();
+  if(input.error){
+    errorBox.innerHTML = `<div class="error">⚠️ ${input.error}</div>`;
+    return;
+  }
+
+  const {jamMasuk, jamKeluar, durasi} = input;
+
+  /* ----- Hitung tarif sesuai LKPD ----- */
+  let biayaDasar, rincian;
+  if(durasi <= 1){
+    biayaDasar = TARIF_JAM_PERTAMA;
+    rincian = '1 jam pertama';
+  } else {
+    biayaDasar = TARIF_JAM_PERTAMA + (durasi - 1) * TARIF_JAM_BERIKUTNYA;
+    rincian = `1 jam pertama + ${durasi - 1} jam berikutnya`;
+  }
+  let diskon = 0;
+  if(durasi > BATAS_DISKON) diskon = NILAI_DISKON;
+  const biayaAkhir = biayaDasar - diskon;
+
+  noStruk++;
+  const kodeStruk = 'SP-' + String(noStruk).padStart(5,'0');
+  const waktuCetak = new Date().toLocaleString('id-ID',{
+    day:'2-digit',month:'2-digit',year:'numeric',
+    hour:'2-digit',minute:'2-digit'
+  });
+
+  /* ----- Susun tampilan printer + struk termal ----- */
+  printer.innerHTML = `
+    <div class="printer-top"></div>
+    <div class="printer-slot"></div>
+    <div class="tiket-wrap">
+      <div class="struk">
+
+        <div class="struk-head">
+          <div class="logo">🅿️</div>
+          <div class="nama">SMART PARKING</div>
+          <div class="sub">PUSAT PERBELANJAAN</div>
+          <div class="alamat">Jl. Merdeka No. 17, Jakarta</div>
+          <div class="alamat">Telp. 021-555-1234</div>
+        </div>
+
+        <div class="struk-info">
+          <div class="baris"><span>No. Struk</span><span>${kodeStruk}</span></div>
+          <div class="baris"><span>Tanggal</span><span>${waktuCetak}</span></div>
+          <div class="baris"><span>Kasir</span><span>SELF-SERVICE</span></div>
+        </div>
+
+        <div class="struk-items">
+          <div class="item">
+            <span>
+              Parkir Mobil<br>
+              <span class="qty">
+                ${String(jamMasuk).padStart(2,'0')}:00 → ${String(jamKeluar).padStart(2,'0')}:00
+              </span>
+            </span>
+            <span>${rupiah(biayaDasar)}</span>
+          </div>
+          <div class="item">
+            <span>
+              Durasi<br>
+              <span class="qty">${rincian}</span>
+            </span>
+            <span>${durasi} jam</span>
+          </div>
+          ${diskon > 0 ? `
+          <div class="item">
+            <span>
+              Diskon &gt; 5 jam<br>
+              <span class="qty">PROMO AKHIR PEKAN</span>
+            </span>
+            <span>-${rupiah(diskon)}</span>
+          </div>` : ''}
+        </div>
+
+        <div class="struk-total">
+          <div class="baris"><span>Subtotal</span><span>${rupiah(biayaDasar)}</span></div>
+          <div class="baris"><span>Diskon</span><span>${diskon>0?'-'+rupiah(diskon):'-'}</span></div>
+          <div class="baris besar"><span>TOTAL</span><span>${rupiah(biayaAkhir)}</span></div>
+          <div class="baris"><span>Bayar (Tunai)</span><span>${rupiah(biayaAkhir)}</span></div>
+          <div class="baris"><span>Kembalian</span><span>Rp 0</span></div>
+        </div>
+
+        <div class="struk-foot">
+          <div class="terimakasih">TERIMA KASIH</div>
+          <div>Struk ini bukti pembayaran yang sah</div>
+          <div>Barang yang sudah dibeli tidak dapat ditukar</div>
+          <div class="barcode"></div>
+          <div class="kode">${kodeStruk}</div>
+          <div style="margin-top:6px">~ Smart Parking ~</div>
+        </div>
+
+      </div>
+    </div>
+  `;
+  printer.classList.add('show');
+  printer.scrollIntoView({behavior:'smooth', block:'center'});
+
+  /* ----- Simpan ke riwayat ----- */
+  riwayat.unshift({
+    kode:kodeStruk,
+    masuk:String(jamMasuk).padStart(2,'0')+':00',
+    keluar:String(jamKeluar).padStart(2,'0')+':00',
+    durasi, dasar:biayaDasar, diskon, akhir:biayaAkhir, waktu:waktuCetak
+  });
+  renderRiwayat();
+}
+
+/* ================== RESET ================== */
+function resetForm(){
+  document.getElementById('jamMasuk').value = 8;
+  document.getElementById('jamKeluar').value = 15;
+  document.getElementById('printerArea').innerHTML = '';
+  document.getElementById('printerArea').classList.remove('show');
+  document.getElementById('errorArea').innerHTML = '';
+}
+
+/* ================== RIWAYAT ================== */
+function renderRiwayat(){
+  const wrap = document.getElementById('riwayatWrap');
+  if(riwayat.length === 0){
+    wrap.innerHTML = `<div class="empty">Belum ada transaksi. Cetak struk dulu ya 🚗</div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="riwayat-list">${
+    riwayat.map((r,i) => `
+      <div class="riwayat-item" style="animation-delay:${i*0.05}s">
+        <div class="info">
+          <b>${r.kode}</b> · ${r.waktu}<br>
+          Masuk ${r.masuk} → Keluar ${r.keluar}
+          <span class="dur">${r.durasi} jam</span>
+          ${r.diskon>0 ? `<span class="diskon-tag">🎁 Diskon ${rupiah(r.diskon)}</span>` : ''}
+        </div>
+        <div class="harga">
+          ${rupiah(r.akhir)}
+          <small>${r.diskon>0 ? 'sebelum: '+rupiah(r.dasar) : 'tanpa diskon'}</small>
+        </div>
+      </div>
+    `).join('')
+  }</div>`;
+}
+
+function hapusRiwayat(){
+  if(riwayat.length === 0){ alert('Riwayat masih kosong.'); return; }
+  if(confirm('Yakin ingin menghapus semua riwayat parkir?')){
+    riwayat = []; noStruk = 0; renderRiwayat();
+  }
+}
+
+/* ================== ENTER UNTUK CETAK ================== */
+document.addEventListener('DOMContentLoaded', () => {
+  ['jamMasuk','jamKeluar'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if(e.key === 'Enter') cetakStruk();
+    });
+  });
+  /* pasang ripple ke semua tombol */
+  document.querySelectorAll('.btn').forEach(b => {
+    b.addEventListener('click', buatRipple);
+  });
+});
+</script>
+</body>
+</html>
